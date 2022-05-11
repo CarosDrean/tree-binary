@@ -69,6 +69,14 @@ func (t *Tree) Search(data interface{}) (interface{}, bool) {
 	return t.search(t.root, data)
 }
 
+func (t *Tree) Delete(data interface{}) {
+	if !t.ordered.IsValidType(data) {
+		return
+	}
+
+	t.delete(t.root, data)
+}
+
 func (t *Tree) add(current *Node, data interface{}) {
 	if t.ordered.IsLeft(current.data, data) {
 		if current.left == nil {
@@ -144,4 +152,48 @@ func (t Tree) search(n *Node, data interface{}) (interface{}, bool) {
 	}
 
 	return t.search(n.right, data)
+}
+
+func (t Tree) findMin(n Node) Node {
+	if n.left == nil {
+		return n
+	}
+
+	return t.findMin(*n.left)
+}
+
+func (t Tree) delete(n *Node, data interface{}) {
+	if n == nil {
+		return
+	}
+
+	if t.ordered.IsEqual(n.data, data) {
+		if n.left == nil && n.right == nil {
+			n = nil
+			return
+		}
+
+		if n.left == nil {
+			n = n.right
+			return
+		}
+
+		if n.right == nil {
+			n = n.left
+			return
+		}
+
+		minRight := t.findMin(*n.right)
+		n.data = minRight.data
+		t.delete(n.right, minRight.data)
+
+		return
+	}
+
+	if t.ordered.IsLeft(n.data, data) {
+		t.delete(n.left, data)
+		return
+	}
+
+	t.delete(n.right, data)
 }
